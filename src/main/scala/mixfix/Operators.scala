@@ -59,10 +59,10 @@ trait Operators { self: StdTokenParsers =>
   }
 
   case class OpList(name: String, operators: List[Operator]) extends OpGroup {
-    //var graph: PrecedenceGraph = null
+    var graph: PrecedenceGraph = null
     lazy val parser = parseOpList(this)
 
-    //lazy val tighterGroups = graph.higherPrecedence(this)
+    def tighterGroups = graph.higherPrecedence(this)
   }
 
   trait TightPseudoGroup extends OpGroup
@@ -74,11 +74,11 @@ trait Operators { self: StdTokenParsers =>
     val edges = {
       var es = definedEdges
       for (node <- nodes) {
-        /*node match {
+        node match {
           case opList: OpList =>
             opList.graph = this
           case _ =>
-        }*/
+        }
         if (!(es contains node))
           es += (node -> Nil)
       }
@@ -90,13 +90,13 @@ trait Operators { self: StdTokenParsers =>
     }
 
     def higherPrecedence(group: OpGroup) = edges(group)
-    def allGroups = nodes
-    def allOperators = nodes collect { case OpList(name, ops) => ops } flatten
-    def concreteGroups = allGroups filter { _.isInstanceOf[OpList] }
-    def concreteOperators = allOperators filter { op =>
+    lazy val allGroups = nodes
+    lazy val allOperators = nodes collect { case OpList(name, ops) => ops } flatten
+    lazy val concreteGroups = allGroups filter { _.isInstanceOf[OpList] }
+    lazy val concreteOperators = allOperators filter { op =>
       op.nameParts forall { n => n.isInstanceOf[ExactName] || n.isInstanceOf[ExactKeyword] }
     }
-    def concreteNames = concreteOperators flatMap (_.nameParts) collect { nm => nm match {
+    lazy val concreteNames = concreteOperators flatMap (_.nameParts) collect { nm => nm match {
       case ExactName(name) => name
       case ExactKeyword(name) => name
     }}
