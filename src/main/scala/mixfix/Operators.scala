@@ -23,7 +23,6 @@ trait Operators { self: StdTokenParsers =>
 
   /** Part of an operator name. Name parts must have holes between them. */
   trait NamePart {
-    def matches(parsed: String): Boolean 
     def parser: Parser[String]
   }
 
